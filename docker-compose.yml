@@ -3,7 +3,7 @@ version: "3.7"
 services:
   backend:
     container_name: backend
-    build: ./
+    build: ./backend
     ports:
       - "8000:8000"
     environment:
@@ -21,4 +21,8 @@ services:
       POSTGRES_PASSWORD: goland
       POSTGRES_DB: goland
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - database_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  database_data:
