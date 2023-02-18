@@ -35,7 +35,8 @@ class Model:
         return x
 
     def predict(self, df):
-        # df = self.add_new_data(df)
+        # if len(df) < 10:
+        #     df = self.add_new_data(df)
         self.df_train = df
         model = self.get_linear_approx(np.array(df.index).reshape(-1, 1), df['bearing7_hor'].values)
         step_break = self.calc_break(np.squeeze(model.coef_))

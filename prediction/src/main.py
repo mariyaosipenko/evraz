@@ -11,6 +11,12 @@ if __name__ == '__main__':
     db.get_last_rows()
 
     # df = db.get_last_rows()  # будут данные по всем 6 экзгаустерам
+    # for exgauster_id, df_exgauster in df.groupby('algoa'):
+    #     df_exgauster.podtype_id == 4  # горизонтальная
+    #     df_exgauster.podtype_id == 5  # вертикальная
+    #     df_exgauster.melt(id_vars=['time'], var_name=)
+
+
     date_calc = datetime.datetime.now()
 
     model = Model()
