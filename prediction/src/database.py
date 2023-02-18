@@ -31,8 +31,12 @@ class DataBase:
 
     def get_last_rows(self):
         with self.engine.connect().execution_options(autocommit=True) as conn:
-
-            df = pd.read_sql(f"""SELECT * FROM info WHERE typename_id=1 and podtype_id=1 or podtype_id=0""", con=conn)
+            data_last_connection = '2023-02-10'
+            # df = pd.read_sql(f"""SELECT * FROM info WHERE typename_id=1 and podtype_id=1 or podtype_id=0""", con=conn)
+            df = pd.read_sql(f"""SELECT * FROM kafkainfo INNER JOIN info ON kafkainfo.code_id = info.id 
+            WHERE kafkainfo.time > '{data_last_connection}' 
+            and info.typename_id = 2 
+            and info.podtype_id = ANY(ARRAY[4, 5])""", con=conn)
         print(df)
         return df
 
