@@ -1,19 +1,18 @@
 version: "3.7"
 
 services:
-  backend:
-    container_name: backend
-    build: ./
-    ports:
-      - "8000:8000"
+  prediction:
+    build: ./prediction/
     environment:
       DD_DB_HOST: db
-    command: /server
     depends_on:
       - db
+    networks:
+      - evraz-network
+
   db:
     container_name: db
-    image: postgres:14.1-alpine
+    image: postgres:15.2-alpine
     ports:
       - "5432:5432"
     environment:
@@ -21,4 +20,37 @@ services:
       POSTGRES_PASSWORD: goland
       POSTGRES_DB: goland
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - database_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - evraz-network
+
+volumes:
+  database_data:
+
+networks:
+  evraz-network:
+    driver: bridge
+
+#  backend:
+#    container_name: backend
+#    build: ./
+#    ports:
+#      - "8000:8000"
+#    environment:
+#      DD_DB_HOST: db
+#    command: /server
+#    depends_on:
+#      - db
+
+#  db:
+#    container_name: db
+#    image: postgres:14.1-alpine
+#    ports:
+#      - "5432:5432"
+#    environment:
+#      POSTGRES_USER: goland
+#      POSTGRES_PASSWORD: goland
+#      POSTGRES_DB: goland
+#    volumes:
+#      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
