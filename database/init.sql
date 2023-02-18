@@ -55,6 +55,10 @@ insert into signal (signal_id, typename)
 values (4, 'warning_max');
 insert into signal (signal_id, typename)
 values (5, 'warning_min');
+insert into signal (signal_id, typename)
+values (6, 'vibration_horizontal');
+insert into signal (signal_id, typename)
+values (7, 'vibration_vertical');
 
 create table info
 (
