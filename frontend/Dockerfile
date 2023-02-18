@@ -2,8 +2,9 @@ FROM node:16
 
 ENV PORT 3000
 
-RUN mkdir -p /app
 WORKDIR /app
+COPY package.json ./
+COPY . .
 
 EXPOSE ${PORT}
 

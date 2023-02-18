@@ -11,6 +11,15 @@ services:
     command: /server
     depends_on:
       - db
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - 3000:3000
+    links:
+      - backend
+
   db:
     container_name: db
     image: postgres:15.2-alpine
