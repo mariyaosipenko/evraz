@@ -6,6 +6,8 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+    networks:
+      - evraz-network
     environment:
       DD_DB_HOST: db
     command: /server
@@ -34,6 +36,8 @@ services:
     image: postgres:15.2-alpine
     ports:
       - "5432:5432"
+    networks:
+      - evraz-network
     environment:
       POSTGRES_USER: goland
       POSTGRES_PASSWORD: goland

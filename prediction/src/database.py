@@ -7,10 +7,7 @@ class DataBase:
         db_name = 'goland'
         db_user = 'goland'
         db_pass = 'goland'
-        if docker:
-            db_host = 'db'
-        else:
-            db_host = '127.0.0.1'
+        db_host = 'db'
 
         db_port = '5432'
 
