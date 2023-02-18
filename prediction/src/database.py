@@ -3,11 +3,15 @@ import pandas as pd
 
 
 class DataBase:
-    def __init__(self):
+    def __init__(self, docker=1):
         db_name = 'goland'
         db_user = 'goland'
         db_pass = 'goland'
-        db_host = '127.0.0.1'
+        if docker:
+            db_host = 'db'
+        else:
+            db_host = '127.0.0.1'
+
         db_port = '5432'
 
         db_string = 'postgresql://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
@@ -27,8 +31,10 @@ class DataBase:
 
     def get_last_rows(self):
         with self.engine.connect().execution_options(autocommit=True) as conn:
+
             df = pd.read_sql(f"""SELECT * FROM info WHERE typename_id=1 and podtype_id=1 or podtype_id=0""", con=conn)
         print(df)
+        return df
 
     def add_new_rows(self, df):
         with self.engine.connect().execution_options(autocommit=True) as conn:

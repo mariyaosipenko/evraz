@@ -20,6 +20,15 @@ services:
     links:
       - backend
 
+  prediction:
+    build: ./prediction/
+    environment:
+      DD_DB_HOST: db
+    depends_on:
+      - db
+    networks:
+      - evraz-network
+
   db:
     container_name: db
     image: postgres:15.2-alpine
@@ -35,3 +44,7 @@ services:
 
 volumes:
   database_data:
+
+networks:
+  evraz-network:
+    driver: bridge
