@@ -20,7 +20,7 @@ class DataBase:
     def add_new_table(self):
         new_table = Table(
             'prediction', self.meta,
-            Column('code_id', Integer, primary_key=True),
+            Column('exgauster', Integer, primary_key=True),
             Column('time', Time),
             Column('prediction_data', Time),
         )

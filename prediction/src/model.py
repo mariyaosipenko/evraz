@@ -8,7 +8,7 @@ class Model:
     def __init__(self):
         self.count_samples = 10  # минут
         self.history_data = pd.DataFrame(columns=['bearing7_hor', 'bearing7_vert',
-                                                 'bearing8_hor', 'bearing8_vert'])  # историческое значение амплитуды
+                                                  'bearing8_hor', 'bearing8_vert'])  # историческое значение амплитуды
         self.df_train = self.history_data
 
         # здесь нужно сохранять исторические данные
