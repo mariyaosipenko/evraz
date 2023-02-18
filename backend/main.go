@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,6 +12,15 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
+type Signal struct {
+	Signal_id int64  `json:"signal_id"`
+	Typename  string `json:"typename"`
+}
+
+type getSignalsResponse struct {
+	Signals []Signal `json:"signals"`
+}
+
 func main() {
 	// Set the flags for the logging package to give us the filename in the logs
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -19,37 +29,53 @@ func main() {
 	defer dbPool.Close()
 
 	log.Println("starting server...")
-	http.HandleFunc("/", homeHandler(dbPool))
-	http.HandleFunc("/demo", func(w http.ResponseWriter, r *http.Request) {
-		visitorID := 0
-		err := dbPool.QueryRow(r.Context(), "INSERT INTO visitors(user_agent, datetime) VALUES ($1, now()) RETURNING id", r.UserAgent()).Scan(&visitorID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("failed to update the database"))
-			log.Printf("[error] dbPool error: %v\n", err)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		_, _ = fmt.Fprintf(w, `Hello, visitor %d!`, visitorID)
-	})
+	http.HandleFunc("/signal", signalHandler(dbPool))
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
-func homeHandler(db *pgxpool.Pool) http.HandlerFunc {
+func signalHandler(db *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		visitorID := 0
-		//language=sql
-		err := db.QueryRow(r.Context(), "INSERT INTO visitors(user_agent, datetime) VALUES ($1, now()) RETURNING id", r.UserAgent()).Scan(&visitorID)
+		rows, err := db.Query(context.Background(), "SELECT * FROM signal;")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("failed to update the database"))
-			log.Printf("[or] db error: %v\n", err)
+			log.Printf("error: %v\n", err.Error())
+			return
+		}
+		defer rows.Close()
+
+		var signals []Signal
+
+		for rows.Next() {
+			var sig Signal
+			if err := rows.Scan(&sig.Signal_id, &sig.Typename); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				log.Printf("error: %v\n", err.Error())
+				return
+			}
+			signals = append(signals, sig)
+		}
+		if err = rows.Err(); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Printf("error: %v\n", err.Error())
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		var response getSignalsResponse
+		response.Signals = make([]Signal, len(signals))
+		for i := range signals {
+			response.Signals[i] = signals[i]
+		}
+		body, err := json.Marshal(response)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Printf("error: %v\n", err.Error())
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		_, _ = fmt.Fprintf(w, `Hello, visitor %d!`, visitorID)
+		if _, err = w.Write(body); err != nil {
+			log.Printf("failed to write response body")
+		}
 	}
 }
 
