@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import axios from "axios";
 import styled from "styled-components";
 
 const Screen = styled.div`
@@ -31,15 +33,30 @@ const Main = styled.main`
   padding: 10px;
 `;
 
-const App = () => (
-  <Screen>
-    <Header>
-      <h1>ЕВРАЗ</h1>
-    </Header>
-    <Main>
-      <Outlet />
-    </Main>
-  </Screen>
-);
+const App = () => {
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const { data } = await axios.get("/signal");
+        console.log(data);
+      } catch (error) {
+        console.error("oops", error);
+      }
+    };
+
+    getData();
+  }, []);
+
+  return (
+    <Screen>
+      <Header>
+        <h1>ЕВРАЗ</h1>
+      </Header>
+      <Main>
+        <Outlet />
+      </Main>
+    </Screen>
+  );
+};
 
 export default App;
