@@ -1,13 +1,16 @@
 from sqlalchemy import create_engine, select, MetaData, Table, Column, Integer, Time
 import pandas as pd
+import os
 
 
 class DataBase:
-    def __init__(self, docker=1):
+    def __init__(self):
         db_name = 'goland'
         db_user = 'goland'
         db_pass = 'goland'
-        db_host = 'db'
+        db_host = os.getenv("DD_DB_HOST")
+        if db_host == '':
+            db_host = '127.0.0.1'
 
         db_port = '5432'
 
@@ -16,6 +19,7 @@ class DataBase:
         # connection = self.engine.connect()
         self.meta = MetaData()
         self.info_table = Table('info', self.meta, autoload_with=self.engine)
+        self.last_date_load = '2023-02-19'  # дата последней выгрузки данных, нужно для загрузки только новых строк
 
     def add_new_table(self):
         new_table = Table(
@@ -28,13 +32,15 @@ class DataBase:
 
     def get_last_rows(self):
         with self.engine.connect().execution_options(autocommit=True) as conn:
-            data_last_connection = '2023-02-10'
+
             # df = pd.read_sql(f"""SELECT * FROM info WHERE typename_id=1 and podtype_id=1 or podtype_id=0""", con=conn)
             df = pd.read_sql(f"""SELECT * FROM kafkainfo INNER JOIN info ON kafkainfo.code_id = info.id 
-            WHERE kafkainfo.time > '{data_last_connection}' 
+            WHERE kafkainfo.time > '{self.last_date_load}' 
             and info.typename_id = 2 
-            and info.podtype_id = ANY(ARRAY[4, 5])""", con=conn)
-        print(df)
+            and info.podtype_id = ANY(ARRAY[4, 5])""", con=conn, parse_dates=['time'])
+
+            if len(df) > 0:
+                self.last_date_load = df['time'].max()
         return df
 
     def add_new_rows(self, df):
