@@ -1,5 +1,5 @@
 # Compile stage
-FROM java:11 AS build-env
+FROM eclipse-temurin:17-jdk-jammy AS build-env
 
 ADD . /consumer
 WORKDIR /consumer
