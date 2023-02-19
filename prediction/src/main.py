@@ -7,7 +7,7 @@ from utils import renaming
 
 if __name__ == '__main__':
     print('Application started')
-    db = DataBase(docker=1)
+    db = DataBase()
     models = [Model()] * 6
     df = pd.DataFrame(columns=['code_id', 'algotype', 'algoa',
                        'algob', 'value', 'time', 'id',
